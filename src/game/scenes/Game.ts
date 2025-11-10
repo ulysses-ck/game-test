@@ -21,6 +21,7 @@ export class Game extends Scene
         right: Phaser.Input.Keyboard.Key;
     }
     debugKey!: Phaser.Input.Keyboard.Key;
+    escapeKey!: Phaser.Input.Keyboard.Key;
 
     playerNearMiner = false;
     playerNearCitizen = false;
@@ -76,6 +77,17 @@ export class Game extends Scene
         };
         this.debugKey = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.P);
         this.debugKey.on('down', this.toggleDebug, this);
+
+        this.escapeKey = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.ESC)!;
+
+        this.escapeKey.on('down', () => {
+            if (!this.scene.isPaused()) {
+                this.scene.pause(); 
+                this.scene.launch('ControlsScene'); 
+                
+                this.input.enabled = false;
+            }
+        }, this);
 
         this.camera.setBounds(0, 0, mapWidth, mapHeight);
         this.camera.startFollow(this.player, true);
