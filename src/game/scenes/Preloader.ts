@@ -38,7 +38,12 @@ export class Preloader extends Scene
             frameHeight: 128,
         })
 
+        // environment
         this.load.atlasXML('medieval', 'medieval.png', 'medieval.xml');
+
+        // npcs
+        this.load.atlasXML('miner', 'char2.png', 'char2.xml');
+        this.load.atlasXML('citizen', 'char3.png', 'char3.xml');
     }
 
     create ()
