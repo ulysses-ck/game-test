@@ -10,6 +10,12 @@ export class Game extends Scene
     playerSpeed = 300;
     collidableObjects: Phaser.Physics.Arcade.StaticGroup;
     playerPosText!: Phaser.GameObjects.Text;
+    wasd: {
+        up: Phaser.Input.Keyboard.Key;
+        left: Phaser.Input.Keyboard.Key;
+        down: Phaser.Input.Keyboard.Key;
+        right: Phaser.Input.Keyboard.Key;
+    }
 
     constructor ()
     {
@@ -53,6 +59,13 @@ export class Game extends Scene
         this.player.setMaxVelocity(this.playerSpeed);
 
         this.cursors = this.input.keyboard!.createCursorKeys();
+
+        this.wasd = {
+            up: this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.W),
+            left: this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.A),
+            down: this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.S),
+            right: this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.D),
+        };
 
         this.camera.setBounds(0, 0, mapWidth, mapHeight);
         this.camera.startFollow(this.player, true);
@@ -178,25 +191,25 @@ export class Game extends Scene
             `Pos: X:${Math.round(this.player.x)}, Y:${Math.round(this.player.y)}`
         );
 
-        if (this.cursors.left.isDown)
+        if (this.cursors.left.isDown || this.wasd.left.isDown)
         {
             velocity.x = -1;
             this.player.setFlipX(true);
             isMoving = true;
         }
-        else if (this.cursors.right.isDown)
+        else if (this.cursors.right.isDown || this.wasd.right.isDown)
         {
             velocity.x = 1;
             this.player.setFlipX(false);
             isMoving = true;
         }
 
-        if (this.cursors.up.isDown)
+        if (this.cursors.up.isDown || this.wasd.up.isDown)
         {
             velocity.y = -1;
             isMoving = true;
         }
-        else if (this.cursors.down.isDown)
+        else if (this.cursors.down.isDown || this.wasd.down.isDown)
         {
             velocity.y = 1;
             isMoving = true;
