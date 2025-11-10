@@ -5,7 +5,11 @@ export class Game extends Scene
     camera: Phaser.Cameras.Scene2D.Camera;
     background: Phaser.GameObjects.Image;
     msg_text : Phaser.GameObjects.Text;
+
     player: Phaser.Physics.Arcade.Sprite;
+    minerNpc!: Phaser.Physics.Arcade.Sprite;
+    citizenNpc!: Phaser.Physics.Arcade.Sprite;
+
     cursors: Phaser.Types.Input.Keyboard.CursorKeys;
     playerSpeed = 300;
     collidableObjects: Phaser.Physics.Arcade.StaticGroup;
@@ -16,6 +20,8 @@ export class Game extends Scene
         down: Phaser.Input.Keyboard.Key;
         right: Phaser.Input.Keyboard.Key;
     }
+    playerNearMiner = false;
+    playerNearCitizen = false;
 
     constructor ()
     {
@@ -83,6 +89,61 @@ export class Game extends Scene
         this.setupSceneObjects(mapWidth, mapHeight);
 
         this.physics.add.collider(this.player, this.collidableObjects);
+
+        this.anims.create({
+            key: 'miner-idle',
+            frames: [{ key: 'miner', frame: 'idle' }],
+            repeat: -1
+        });
+
+        this.anims.create({
+            key: 'miner-interact',
+            frames: [
+                { key: 'miner', frame: 'cheer0' },
+                { key: 'miner', frame: 'cheer1' } 
+            ],
+            frameRate: 8,
+            repeat: -1
+        });
+
+        this.anims.create({
+            key: 'citizen-idle',
+            frames: [{ key: 'citizen', frame: 'idle' }],
+            repeat: -1
+        });
+
+        this.anims.create({
+            key: 'citizen-interact',
+            frames: [
+                { key: 'citizen', frame: 'think' },
+                { key: 'citizen', frame: 'idle' } 
+            ],
+            frameRate: 4,
+            repeat: -1
+        });
+
+        this.minerNpc = this.physics.add.staticSprite(280, 200, 'miner')
+            .setDepth(9)
+            .play('miner-idle');
+
+        this.citizenNpc = this.physics.add.staticSprite(1200, 380, 'citizen')
+            .setDepth(9) 
+            .play('citizen-idle');
+
+        this.physics.add.overlap(this.player, this.minerNpc, () => { 
+            if (!this.playerNearMiner) {
+                this.minerNpc.play('miner-interact', true);
+                this.playerNearMiner = true;
+            }
+        }, undefined, this);
+
+        this.physics.add.overlap(this.player, this.citizenNpc, () => {
+            if (!this.playerNearCitizen) {
+                this.citizenNpc.play('citizen-interact', true);
+                this.playerNearCitizen = true;
+            }
+        }, undefined, this);
+
         
         this.anims.create({
             key: 'walk',
@@ -184,6 +245,20 @@ export class Game extends Scene
     }
 
     update () {
+        const isOverlappingMiner = this.physics.overlap(this.player, this.minerNpc);
+    
+        if (this.playerNearMiner && !isOverlappingMiner) {
+            this.minerNpc.play('miner-idle', true);
+            this.playerNearMiner = false;
+        }
+
+        const isOverlappingCitizen = this.physics.overlap(this.player, this.citizenNpc);
+        
+        if (this.playerNearCitizen && !isOverlappingCitizen) {
+            this.citizenNpc.play('citizen-idle', true);
+            this.playerNearCitizen = false;
+        }
+
         const velocity = new Phaser.Math.Vector2(0, 0);
         let isMoving = false;
 
