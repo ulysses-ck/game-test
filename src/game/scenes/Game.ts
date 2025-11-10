@@ -33,6 +33,17 @@ export class Game extends Scene
         this.player = this.physics.add.sprite(100, 384, 'character'); 
         this.player.setDepth(100);
 
+        const newBodyHeight = 70; 
+        const originalHeight = this.player.height; 
+        
+        const offsetY = originalHeight - newBodyHeight; 
+
+        this.player.body!.setSize(
+            this.player.width,
+            newBodyHeight,    
+            false             
+        ).setOffset(0, offsetY);
+
         this.collidableObjects = this.physics.add.staticGroup().setDepth(10);
 
 
