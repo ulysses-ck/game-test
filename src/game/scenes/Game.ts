@@ -124,11 +124,15 @@ export class Game extends Scene
 
         this.minerNpc = this.physics.add.staticSprite(280, 200, 'miner')
             .setDepth(9)
-            .play('miner-idle');
+            .play('miner-idle')
+            .setInteractive()
+            .on('pointerdown', () => this.startDialogue('miner'))
 
         this.citizenNpc = this.physics.add.staticSprite(1200, 380, 'citizen')
             .setDepth(9) 
-            .play('citizen-idle');
+            .play('citizen-idle')
+            .setInteractive()
+            .on('pointerdown', () => this.startDialogue('citizen'))
 
         this.physics.add.overlap(this.player, this.minerNpc, () => { 
             if (!this.playerNearMiner) {
@@ -299,5 +303,19 @@ export class Game extends Scene
         } else {
             this.player.play('idle', true);
         }
+    }
+
+    startDialogue (npcKey: string) {
+        this.player.setVelocity(0); 
+
+        const npc = (npcKey === 'miner' ? this.minerNpc : this.citizenNpc);
+        npc.play(`${npcKey}-interact`, true);
+        
+        this.scene.pause(); 
+        
+        this.scene.launch('DialogueScene', { 
+            npc: npcKey, 
+            dialogueId: 'intro_01'
+        });
     }
 }
