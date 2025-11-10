@@ -37,9 +37,9 @@ export class Game extends Scene
 
         // player
         this.player = this.physics.add.sprite(100, 384, 'character'); 
-        this.player.setDepth(100);
+        this.player.setDepth(10);
 
-        const newBodyHeight = 70; 
+        const newBodyHeight = 90; 
         const originalHeight = this.player.height; 
         
         const offsetY = originalHeight - newBodyHeight; 
