@@ -37,6 +37,8 @@ export class Preloader extends Scene
             frameWidth: 96,
             frameHeight: 128,
         })
+
+        this.load.atlasXML('medieval', 'medieval.png', 'medieval.xml');
     }
 
     create ()

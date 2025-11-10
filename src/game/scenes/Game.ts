@@ -8,6 +8,7 @@ export class Game extends Scene
     player: Phaser.Physics.Arcade.Sprite;
     cursors: Phaser.Types.Input.Keyboard.CursorKeys;
     playerSpeed = 300;
+    collidableObjects: Phaser.Physics.Arcade.StaticGroup;
 
     constructor ()
     {
@@ -19,19 +20,21 @@ export class Game extends Scene
         const mapWidth = 2000;
         const mapHeight = 1500;
 
+        // world
         this.physics.world.setBounds(0, 0, mapWidth, mapHeight);
         
 
-
+        // camera
         this.camera = this.cameras.main;
-        this.camera.setBackgroundColor(0x00ff00);
+        this.camera.setBackgroundColor(0x35654d);
 
-        this.background = this.add.image(512, 384, 'background');
-        this.background.setAlpha(0.1);
-
-
-
+        // player
         this.player = this.physics.add.sprite(100, 384, 'character'); 
+        this.player.setDepth(100);
+
+        this.collidableObjects = this.physics.add.staticGroup().setDepth(10);
+
+
         this.player.setCollideWorldBounds(true);
         this.player.setPosition(100, 384);
         this.player.setDrag(500, 500);
@@ -42,6 +45,9 @@ export class Game extends Scene
         this.camera.setBounds(0, 0, mapWidth, mapHeight);
         this.camera.startFollow(this.player, true);
 
+        this.setupSceneObjects(mapWidth, mapHeight);
+
+        this.physics.add.collider(this.player, this.collidableObjects);
         
         this.anims.create({
             key: 'walk',
@@ -58,6 +64,48 @@ export class Game extends Scene
 
         this.player.play("idle")
 
+    }
+
+    setupSceneObjects (width: number, height: number): void
+    {
+        const COLLISION_DEPTH = 10;
+        const DECORATION_DEPTH = 5;
+
+        // tile grass
+        this.add.tileSprite(width / 2, height / 2, width, height, 'medieval', 'medievalTile_57.png')
+            .setDepth(0); 
+
+        // decoration
+        const deco = [
+            { x: 200, y: 450, frame: 'medievalEnvironment_06.png', scale: 1 }, // Matorral
+            { x: 500, y: 800, frame: 'medievalEnvironment_09.png', scale: 2 }, // Piedra (Pequeña)
+            { x: 1200, y: 100, frame: 'medievalEnvironment_14.png', scale: 2 }, // Hongo
+            { x: 900, y: 1100, frame: 'medievalEnvironment_07.png', scale: 1.5 }, // Piedra
+            { x: 1800, y: 300, frame: 'medievalEnvironment_13.png', scale: 2 }, // Tronco
+            { x: 100, y: 1400, frame: 'medievalEnvironment_15.png', scale: 1 }, // Piedra
+        ];
+
+        deco.forEach(d => {
+            this.add.image(d.x, d.y, 'medieval', d.frame)
+                .setScale(d.scale)
+                .setDepth(DECORATION_DEPTH);
+        });
+
+
+        // objs with colliders
+        this.collidableObjects.create(150, 800, 'medieval', 'medievalEnvironment_04.png').setScale(2).setDepth(COLLISION_DEPTH);
+        this.collidableObjects.create(400, 1000, 'medieval', 'medievalEnvironment_04.png').setScale(2).setDepth(COLLISION_DEPTH);
+        this.collidableObjects.create(800, 50, 'medieval', 'medievalEnvironment_04.png').setScale(1.5).setDepth(COLLISION_DEPTH);
+        this.collidableObjects.create(1600, 450, 'medieval', 'medievalEnvironment_04.png').setScale(2).setDepth(COLLISION_DEPTH);
+
+        this.collidableObjects.create(500, 300, 'medieval', 'medievalStructure_14.png').setDepth(COLLISION_DEPTH);
+        
+        this.collidableObjects.create(1800, 1200, 'medieval', 'medievalStructure_05.png').setScale(2).setDepth(COLLISION_DEPTH);
+
+        this.collidableObjects.create(800, 1300, 'medieval', 'medievalTile_09.png').setDepth(COLLISION_DEPTH);
+        this.collidableObjects.create(864, 1300, 'medieval', 'medievalTile_09.png').setDepth(COLLISION_DEPTH);
+        this.collidableObjects.create(928, 1300, 'medieval', 'medievalTile_09.png').setDepth(COLLISION_DEPTH);
+        this.collidableObjects.create(928, 1250, 'medieval', 'medievalUnit_05.png').setDepth(COLLISION_DEPTH); // Valla
     }
 
     update () {
