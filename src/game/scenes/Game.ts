@@ -25,6 +25,8 @@ export class Game extends Scene
 
         this.player = this.physics.add.sprite(100, 384, 'character'); 
         this.player.setCollideWorldBounds(true);
+        this.player.setDrag(500, 500);
+        this.player.setMaxVelocity(this.playerSpeed)
 
         this.cursors = this.input.keyboard!.createCursorKeys();
 
@@ -42,50 +44,45 @@ export class Game extends Scene
             frameRate: 1
         });
 
-        this.player.play("walk")
+        this.player.play("idle")
 
     }
 
     update () {
-        this.player.setVelocity(0);
-
+        const velocity = new Phaser.Math.Vector2(0, 0);
         let isMoving = false;
 
-        if (this.cursors.left.isDown || this.cursors.right.isDown)
+        if (this.cursors.left.isDown)
         {
-            if (this.cursors.left.isDown)
-            {
-                this.player.setVelocityX(-this.playerSpeed);
-                this.player.setFlipX(true);
-            }
-            else if (this.cursors.right.isDown)
-            {
-                this.player.setVelocityX(this.playerSpeed);
-                this.player.setFlipX(false);
-            }
-            
-            this.player.play('walk', true);
+            velocity.x = -1;
+            this.player.setFlipX(true);
+            isMoving = true;
+        }
+        else if (this.cursors.right.isDown)
+        {
+            velocity.x = 1;
+            this.player.setFlipX(false);
             isMoving = true;
         }
 
-        if (this.cursors.up.isDown || this.cursors.down.isDown)
+        if (this.cursors.up.isDown)
         {
-            if (this.cursors.up.isDown)
-            {
-                this.player.setVelocityY(-this.playerSpeed);
-            }
-            else if (this.cursors.down.isDown)
-            {
-                this.player.setVelocityY(this.playerSpeed);
-            }
-            
-            if (!isMoving) {
-                this.player.play('walk', true);
-                isMoving = true;
-            }
+            velocity.y = -1;
+            isMoving = true;
         }
+        else if (this.cursors.down.isDown)
+        {
+            velocity.y = 1;
+            isMoving = true;
+        }
+        
+        velocity.normalize(); 
 
-        if (!isMoving) {
+        this.player.setVelocity(velocity.x * this.playerSpeed, velocity.y * this.playerSpeed);
+        
+        if (isMoving) {
+            this.player.play('walk', true);
+        } else {
             this.player.play('idle', true);
         }
     }
