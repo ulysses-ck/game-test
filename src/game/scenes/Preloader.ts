@@ -33,6 +33,10 @@ export class Preloader extends Scene
         this.load.setPath('assets');
 
         this.load.image('logo', 'logo.png');
+        this.load.spritesheet('character', 'char.png', {
+            frameWidth: 96,
+            frameHeight: 128,
+        })
     }
 
     create ()
