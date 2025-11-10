@@ -20,6 +20,8 @@ export class Game extends Scene
         down: Phaser.Input.Keyboard.Key;
         right: Phaser.Input.Keyboard.Key;
     }
+    debugKey!: Phaser.Input.Keyboard.Key;
+
     playerNearMiner = false;
     playerNearCitizen = false;
 
@@ -72,6 +74,8 @@ export class Game extends Scene
             down: this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.S),
             right: this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.D),
         };
+        this.debugKey = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.P);
+        this.debugKey.on('down', this.toggleDebug, this);
 
         this.camera.setBounds(0, 0, mapWidth, mapHeight);
         this.camera.startFollow(this.player, true);
@@ -85,6 +89,7 @@ export class Game extends Scene
 
         this.playerPosText.setScrollFactor(0); 
         this.playerPosText.setDepth(999);
+        this.playerPosText.setVisible(false);
 
         this.setupSceneObjects(mapWidth, mapHeight);
 
@@ -164,6 +169,10 @@ export class Game extends Scene
 
         this.player.play("idle")
 
+    }
+
+    toggleDebug() {
+        this.playerPosText.setVisible(!this.playerPosText.visible);
     }
 
     setupSceneObjects (width: number, height: number): void
