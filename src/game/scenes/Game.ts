@@ -16,19 +16,31 @@ export class Game extends Scene
 
     create ()
     {
+        const mapWidth = 2000;
+        const mapHeight = 1500;
+
+        this.physics.world.setBounds(0, 0, mapWidth, mapHeight);
+        
+
+
         this.camera = this.cameras.main;
         this.camera.setBackgroundColor(0x00ff00);
 
         this.background = this.add.image(512, 384, 'background');
-        this.background.setAlpha(0.5);
+        this.background.setAlpha(0.1);
+
 
 
         this.player = this.physics.add.sprite(100, 384, 'character'); 
         this.player.setCollideWorldBounds(true);
+        this.player.setPosition(100, 384);
         this.player.setDrag(500, 500);
-        this.player.setMaxVelocity(this.playerSpeed)
+        this.player.setMaxVelocity(this.playerSpeed);
 
         this.cursors = this.input.keyboard!.createCursorKeys();
+
+        this.camera.setBounds(0, 0, mapWidth, mapHeight);
+        this.camera.startFollow(this.player, true);
 
         
         this.anims.create({
