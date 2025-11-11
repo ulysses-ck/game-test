@@ -46,10 +46,11 @@ export class Preloader extends Scene
         this.load.image('House1.png', 'Oak_Tree.png')
 
         this.load.image('logo', 'logo.png');
-        this.load.spritesheet('character', 'char.png', {
-            frameWidth: 96,
-            frameHeight: 128,
+        this.load.spritesheet('character', 'Player.png', {
+            frameWidth: 32,
+            frameHeight: 32,
         })
+
 
         // environment
         this.load.atlasXML('medieval', 'medieval.png', 'medieval.xml');

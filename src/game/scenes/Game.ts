@@ -42,6 +42,7 @@ export class Game extends Scene
 
         // camera
         this.camera = this.cameras.main;
+        this.camera.setZoom(4)
 
         // player
         this.player = this.physics.add.sprite(100, 384, 'character'); 
@@ -71,7 +72,7 @@ export class Game extends Scene
         const tilBeach = map.addTilesetImage("Beach_Tile", "Beach_Tile.png")
 
         const tilesets = [tilesetGrass!, tilesetPath!, tilesetWater!, tilPath!, tilesetCliff!, tilWater!, tilBeach!];
-        
+
         const tils2 = [tilesetOak!, tilesetHouse!];
         const layer = map.createLayer('Capa de patrones 1', tilesets, 0, 0);
         const layer2 = map.createLayer('Capa de patrones 2', tils2, 0,0);
@@ -114,7 +115,7 @@ export class Game extends Scene
         this.playerPosText = this.add.text(10, 10, 'Pos: X:0, Y:0', { 
             fontSize: '16px', 
             color: '#ffffff',
-            backgroundColor: '#00000080', // Fondo semi-transparente
+            backgroundColor: '#00000080',
             padding: { x: 5, y: 5 }
         });
 
@@ -184,16 +185,31 @@ export class Game extends Scene
 
         
         this.anims.create({
-            key: 'walk',
-            frames: this.anims.generateFrameNumbers('character', { start: 36, end: 43 }), 
-            frameRate: 10, 
-            repeat: -1     
+            key: 'idle',
+            frames: this.anims.generateFrameNumbers('character', { start: 0, end: 5 }),
+            frameRate: 6,
+            repeat: -1
         });
 
         this.anims.create({
-            key: 'idle',
-            frames: [{ key: 'character', frame: 0 }], 
-            frameRate: 1
+            key: 'walk_down',
+            frames: this.anims.generateFrameNumbers('character', { start: 18, end: 23 }),
+            frameRate: 10, 
+            repeat: -1 
+        });
+
+        this.anims.create({
+            key: 'walk_right',
+            frames: this.anims.generateFrameNumbers('character', { start: 24, end: 29 }),
+            frameRate: 10, 
+            repeat: -1 
+        });
+
+        this.anims.create({
+            key: 'walk_up',
+            frames: this.anims.generateFrameNumbers('character', { start: 30, end: 35 }),
+            frameRate: 10, 
+            repeat: -1 
         });
 
         this.player.play("idle")
@@ -204,9 +220,9 @@ export class Game extends Scene
         this.playerPosText.setVisible(!this.playerPosText.visible);
     }
 
-    update () {
+    update() {
         const isOverlappingMiner = this.physics.overlap(this.player, this.minerNpc);
-    
+        
         if (this.playerNearMiner && !isOverlappingMiner) {
             this.minerNpc.play('miner-idle', true);
             this.playerNearMiner = false;
@@ -221,33 +237,39 @@ export class Game extends Scene
 
         const velocity = new Phaser.Math.Vector2(0, 0);
         let isMoving = false;
+        let animKey = 'idle';
 
         this.playerPosText.setText(
             `Pos: X:${Math.round(this.player.x)}, Y:${Math.round(this.player.y)}`
         );
 
+        
         if (this.cursors.left.isDown || this.wasd.left.isDown)
         {
             velocity.x = -1;
             this.player.setFlipX(true);
             isMoving = true;
+            animKey = 'walk_right';
         }
-        else if (this.cursors.right.isDown || this.wasd.right.isDown)
+        if (this.cursors.right.isDown || this.wasd.right.isDown)
         {
             velocity.x = 1;
             this.player.setFlipX(false);
             isMoving = true;
+            animKey = 'walk_right';
         }
 
         if (this.cursors.up.isDown || this.wasd.up.isDown)
         {
             velocity.y = -1;
             isMoving = true;
+            animKey = 'walk_up';
         }
-        else if (this.cursors.down.isDown || this.wasd.down.isDown)
+        if (this.cursors.down.isDown || this.wasd.down.isDown)
         {
             velocity.y = 1;
             isMoving = true;
+            animKey = 'walk_down';
         }
         
         velocity.normalize(); 
@@ -255,7 +277,7 @@ export class Game extends Scene
         this.player.setVelocity(velocity.x * this.playerSpeed, velocity.y * this.playerSpeed);
         
         if (isMoving) {
-            this.player.play('walk', true);
+            this.player.play(animKey, true);
         } else {
             this.player.play('idle', true);
         }
