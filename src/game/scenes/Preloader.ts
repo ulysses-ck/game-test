@@ -32,6 +32,17 @@ export class Preloader extends Scene
         //  Load the assets for the game - Replace with your own assets
         this.load.setPath('assets');
 
+       this.load.tilemapTiledJSON('level1', 'level1.json');
+
+        this.load.image('Grass_Middle.png', 'Grass_Middle.png');
+        this.load.image('Path_Middle.png', 'Path_Middle.png');
+        this.load.image('Water_Middle.png', 'Water_Middle.png');
+        
+        this.load.image('Beach_Tile.png', 'Beach_Tile.png');
+        this.load.image('Cliff_Tile.png', 'Cliff_Tile.png');
+        this.load.image('Path_Tile.png', 'Path_Tile.png');
+        this.load.image('Water_Tile.png', 'Water_Tile.png');
+
         this.load.image('logo', 'logo.png');
         this.load.spritesheet('character', 'char.png', {
             frameWidth: 96,

@@ -33,8 +33,8 @@ export class Game extends Scene
 
     create ()
     {
-        const mapWidth = 2000;
-        const mapHeight = 1500;
+        const mapWidth = 2048;
+        const mapHeight = 1504;
 
         // world
         this.physics.world.setBounds(0, 0, mapWidth, mapHeight);
@@ -42,7 +42,6 @@ export class Game extends Scene
 
         // camera
         this.camera = this.cameras.main;
-        this.camera.setBackgroundColor(0x35654d);
 
         // player
         this.player = this.physics.add.sprite(100, 384, 'character'); 
@@ -59,7 +58,23 @@ export class Game extends Scene
             false             
         ).setOffset(0, offsetY);
 
-        this.collidableObjects = this.physics.add.staticGroup().setDepth(10);
+        const map = this.make.tilemap({ key: 'level1' });
+
+        const tilesetGrass = map.addTilesetImage('Grass_Middle', 'Grass_Middle.png');
+        const tilesetPath = map.addTilesetImage('Path_Middle', 'Path_Middle.png');
+        const tilesetWater = map.addTilesetImage('Water_Middle', 'Water_Middle.png');
+
+        const tilesets = [tilesetGrass!, tilesetPath!, tilesetWater!];
+        const layer = map.createLayer('Capa de patrones 1', tilesets, 0, 0);
+
+        layer!.setCollisionByProperty({ collides: true });
+
+        const debugGraphics = this.add.graphics().setAlpha(0.5);
+        map.renderDebug(debugGraphics, {
+            tileColor: null,
+            collidingTileColor: new Phaser.Display.Color(243, 134, 48, 200),
+            faceColor: new Phaser.Display.Color(40, 39, 37, 255)
+        });
 
 
         this.player.setCollideWorldBounds(true);
@@ -103,9 +118,9 @@ export class Game extends Scene
         this.playerPosText.setDepth(999);
         this.playerPosText.setVisible(false);
 
-        this.setupSceneObjects(mapWidth, mapHeight);
+        
 
-        this.physics.add.collider(this.player, this.collidableObjects);
+        this.physics.add.collider(this.player, layer!);
 
         this.anims.create({
             key: 'miner-idle',
