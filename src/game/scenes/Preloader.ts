@@ -56,8 +56,14 @@ export class Preloader extends Scene
         this.load.atlasXML('medieval', 'medieval.png', 'medieval.xml');
 
         // npcs
-        this.load.atlasXML('miner', 'char2.png', 'char2.xml');
-        this.load.atlasXML('citizen', 'char3.png', 'char3.xml');
+        this.load.spritesheet('miner', 'Skeleton.png', {
+            frameWidth: 32,
+            frameHeight: 32,
+        });
+        this.load.spritesheet('citizen', 'Slime.png', {
+            frameWidth: 64,
+            frameHeight: 64,
+        });
     }
 
     create ()
