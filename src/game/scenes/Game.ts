@@ -22,6 +22,10 @@ export class Game extends Scene
     }
     debugKey!: Phaser.Input.Keyboard.Key;
     escapeKey!: Phaser.Input.Keyboard.Key;
+    zoomInKey!: Phaser.Input.Keyboard.Key
+    zoomOutKey!: Phaser.Input.Keyboard.Key
+    zoomInKeyQ!: Phaser.Input.Keyboard.Key
+    zoomOutKeyE!: Phaser.Input.Keyboard.Key
 
     playerNearMiner = false;
     playerNearCitizen = false;
@@ -97,6 +101,13 @@ export class Game extends Scene
         };
         this.debugKey = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.P);
         this.debugKey.on('down', this.toggleDebug, this);
+
+        this.zoomInKey = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.PLUS);
+        this.zoomOutKey = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.MINUS);
+        
+        
+        this.zoomInKeyQ = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.Q);
+        this.zoomOutKeyE = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.E);
 
         this.escapeKey = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.ESC)!;
 
@@ -218,6 +229,29 @@ export class Game extends Scene
     }
 
     update() {
+        const camera = this.cameras.main;
+        const zoomSpeed = 0.1; 
+        const minZoom = 1;  
+        const maxZoom = 3;  
+
+        if (Phaser.Input.Keyboard.JustDown(this.zoomInKey) || Phaser.Input.Keyboard.JustDown(this.zoomInKeyQ)) {
+            let newZoom = camera.zoom + zoomSpeed;
+            
+            if (newZoom > maxZoom) {
+                newZoom = maxZoom;
+            }
+            camera.setZoom(newZoom);
+        } 
+        
+        if (Phaser.Input.Keyboard.JustDown(this.zoomOutKey) || Phaser.Input.Keyboard.JustDown(this.zoomOutKeyE)) {
+            let newZoom = camera.zoom - zoomSpeed;
+            
+            if (newZoom < minZoom) {
+                newZoom = minZoom;
+            }
+            camera.setZoom(newZoom);
+        }
+
         const isOverlappingMiner = this.physics.overlap(this.player, this.minerNpc);
         
         if (this.playerNearMiner && !isOverlappingMiner) {
