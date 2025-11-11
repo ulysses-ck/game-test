@@ -127,35 +127,32 @@ export class Game extends Scene
 
         this.anims.create({
             key: 'miner-idle',
-            frames: [{ key: 'miner', frame: 'idle' }],
+            frames: this.anims.generateFrameNumbers('miner', { start: 0, end: 5 }),
+            frameRate: 6,
             repeat: -1
         });
 
         this.anims.create({
             key: 'miner-interact',
-            frames: [
-                { key: 'miner', frame: 'cheer0' },
-                { key: 'miner', frame: 'cheer1' } 
-            ],
+            frames: this.anims.generateFrameNumbers('miner', { start: 6, end: 7 }),
             frameRate: 8,
             repeat: -1
         });
 
         this.anims.create({
             key: 'citizen-idle',
-            frames: [{ key: 'citizen', frame: 'idle' }],
+            frames: this.anims.generateFrameNumbers('citizen', { start: 0, end: 3 }),
+            frameRate: 8,
             repeat: -1
         });
 
         this.anims.create({
             key: 'citizen-interact',
-            frames: [
-                { key: 'citizen', frame: 'think' },
-                { key: 'citizen', frame: 'idle' } 
-            ],
-            frameRate: 4,
+            frames: this.anims.generateFrameNumbers('citizen', { start: 8, end: 17 }),
+            frameRate: 8,
             repeat: -1
         });
+
 
         this.minerNpc = this.physics.add.staticSprite(280, 200, 'miner')
             .setDepth(9)
@@ -163,7 +160,7 @@ export class Game extends Scene
             .setInteractive()
             .on('pointerdown', () => this.startDialogue('miner'))
 
-        this.citizenNpc = this.physics.add.staticSprite(1200, 380, 'citizen')
+        this.citizenNpc = this.physics.add.staticSprite(280, 300, 'citizen')
             .setDepth(9) 
             .play('citizen-idle')
             .setInteractive()

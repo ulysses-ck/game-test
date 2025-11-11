@@ -60,7 +60,7 @@ export class Preloader extends Scene
             frameWidth: 32,
             frameHeight: 32,
         });
-        this.load.spritesheet('citizen', 'Slime.png', {
+        this.load.spritesheet('citizen', 'Slime_Green.png', {
             frameWidth: 64,
             frameHeight: 64,
         });
