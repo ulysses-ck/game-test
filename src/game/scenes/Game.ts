@@ -154,13 +154,13 @@ export class Game extends Scene
         });
 
 
-        this.minerNpc = this.physics.add.staticSprite(280, 200, 'miner')
+        this.minerNpc = this.physics.add.staticSprite(280, 250, 'miner')
             .setDepth(9)
             .play('miner-idle')
             .setInteractive()
             .on('pointerdown', () => this.startDialogue('miner'))
 
-        this.citizenNpc = this.physics.add.staticSprite(280, 300, 'citizen')
+        this.citizenNpc = this.physics.add.staticSprite(1660, 270, 'citizen')
             .setDepth(9) 
             .play('citizen-idle')
             .setInteractive()
