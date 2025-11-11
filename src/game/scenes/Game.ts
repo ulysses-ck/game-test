@@ -63,18 +63,22 @@ export class Game extends Scene
         const tilesetGrass = map.addTilesetImage('Grass_Middle', 'Grass_Middle.png');
         const tilesetPath = map.addTilesetImage('Path_Middle', 'Path_Middle.png');
         const tilesetWater = map.addTilesetImage('Water_Middle', 'Water_Middle.png');
+        const tilesetOak = map.addTilesetImage('Oak_Tree', 'Oak_Tree.png');
+        const tilesetHouse = map.addTilesetImage('House1', 'House1.png');
+        const tilesetCliff = map.addTilesetImage("Cliff_Tile", "Cliff_Tile.png");
+        const tilPath = map.addTilesetImage("Path_Tile", "Path_Tile.png");
+        const tilWater = map.addTilesetImage("Water_Tile", "Water_Tile.png");
+        const tilBeach = map.addTilesetImage("Beach_Tile", "Beach_Tile.png")
 
-        const tilesets = [tilesetGrass!, tilesetPath!, tilesetWater!];
+        const tilesets = [tilesetGrass!, tilesetPath!, tilesetWater!, tilPath!, tilesetCliff!, tilWater!, tilBeach!];
+        
+        const tils2 = [tilesetOak!, tilesetHouse!];
         const layer = map.createLayer('Capa de patrones 1', tilesets, 0, 0);
+        const layer2 = map.createLayer('Capa de patrones 2', tils2, 0,0);
 
         layer!.setCollisionByProperty({ collides: true });
+        layer2!.setCollisionByProperty({collides: true});
 
-        const debugGraphics = this.add.graphics().setAlpha(0.5);
-        map.renderDebug(debugGraphics, {
-            tileColor: null,
-            collidingTileColor: new Phaser.Display.Color(243, 134, 48, 200),
-            faceColor: new Phaser.Display.Color(40, 39, 37, 255)
-        });
 
 
         this.player.setCollideWorldBounds(true);
@@ -117,8 +121,6 @@ export class Game extends Scene
         this.playerPosText.setScrollFactor(0); 
         this.playerPosText.setDepth(999);
         this.playerPosText.setVisible(false);
-
-        
 
         this.physics.add.collider(this.player, layer!);
 

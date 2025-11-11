@@ -42,6 +42,8 @@ export class Preloader extends Scene
         this.load.image('Cliff_Tile.png', 'Cliff_Tile.png');
         this.load.image('Path_Tile.png', 'Path_Tile.png');
         this.load.image('Water_Tile.png', 'Water_Tile.png');
+        this.load.image('Oak_Tree.png', 'Oak_Tree.png');
+        this.load.image('House1.png', 'Oak_Tree.png')
 
         this.load.image('logo', 'logo.png');
         this.load.spritesheet('character', 'char.png', {
