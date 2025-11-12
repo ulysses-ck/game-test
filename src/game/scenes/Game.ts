@@ -27,6 +27,9 @@ export class Game extends Scene
     zoomInKeyQ!: Phaser.Input.Keyboard.Key
     zoomOutKeyE!: Phaser.Input.Keyboard.Key
 
+    layer: Phaser.Tilemaps.TilemapLayer
+    layer2: Phaser.Tilemaps.TilemapLayer
+
     playerNearMiner = false;
     playerNearCitizen = false;
 
@@ -40,57 +43,41 @@ export class Game extends Scene
         const mapWidth = 2048;
         const mapHeight = 1504;
 
-        // world
         this.physics.world.setBounds(0, 0, mapWidth, mapHeight);
-        
 
-        // camera
         this.camera = this.cameras.main;
-        this.camera.setZoom(4)
+        this.camera.setZoom(4);
+        this.camera.setBounds(0, 0, mapWidth, mapHeight);
 
-        // player
-        this.player = this.physics.add.sprite(100, 384, 'character'); 
-        this.player.setDepth(10);
+        this.createAnimations();
+        this.setupPlayer();
+        this.setupDebugText();
+        this.setupTilemap()
+        this.setupNPCs()
+        this.setupInputs();
 
-        const newBodyHeight = 90; 
-        const originalHeight = this.player.height; 
-        
-        const offsetY = originalHeight - newBodyHeight; 
+        this.physics.add.collider(this.player, this.layer);
+        this.physics.add.collider(this.player, this.layer2);
+        this.physics.add.overlap(this.player, this.minerNpc, () => { 
+            if (!this.playerNearMiner) {
+                this.minerNpc.play('miner-interact', true);
+                this.playerNearMiner = true;
+            }
+        }, undefined, this);
 
-        this.player.body!.setSize(
-            this.player.width,
-            newBodyHeight,    
-            false             
-        ).setOffset(0, offsetY);
+        this.physics.add.overlap(this.player, this.citizenNpc, () => {
+            if (!this.playerNearCitizen) {
+                this.citizenNpc.play('citizen-interact', true);
+                this.playerNearCitizen = true;
+            }
+        }, undefined, this);
 
-        const map = this.make.tilemap({ key: 'level1' });
+        this.camera.startFollow(this.player, true);
+        this.player.play("idle");
+    }
 
-        const tilesetGrass = map.addTilesetImage('Grass_Middle', 'Grass_Middle.png');
-        const tilesetPath = map.addTilesetImage('Path_Middle', 'Path_Middle.png');
-        const tilesetWater = map.addTilesetImage('Water_Middle', 'Water_Middle.png');
-        const tilesetOak = map.addTilesetImage('Oak_Tree', 'Oak_Tree.png');
-        const tilesetHouse = map.addTilesetImage('House1', 'House1.png');
-        const tilesetCliff = map.addTilesetImage("Cliff_Tile", "Cliff_Tile.png");
-        const tilPath = map.addTilesetImage("Path_Tile", "Path_Tile.png");
-        const tilWater = map.addTilesetImage("Water_Tile", "Water_Tile.png");
-        const tilBeach = map.addTilesetImage("Beach_Tile", "Beach_Tile.png")
-
-        const tilesets = [tilesetGrass!, tilesetPath!, tilesetWater!, tilPath!, tilesetCliff!, tilWater!, tilBeach!];
-
-        const tils2 = [tilesetOak!, tilesetHouse!];
-        const layer = map.createLayer('Capa de patrones 1', tilesets, 0, 0);
-        const layer2 = map.createLayer('Capa de patrones 2', tils2, 0,0);
-
-        layer!.setCollisionByProperty({ collides: true });
-        layer2!.setCollisionByProperty({collides: true});
-
-
-
-        this.player.setCollideWorldBounds(true);
-        this.player.setPosition(100, 384);
-        this.player.setDrag(500, 500);
-        this.player.setMaxVelocity(this.playerSpeed);
-
+    setupInputs()
+    {
         this.cursors = this.input.keyboard!.createCursorKeys();
 
         this.wasd = {
@@ -119,23 +106,71 @@ export class Game extends Scene
                 this.input.enabled = false;
             }
         }, this);
+    }
 
-        this.camera.setBounds(0, 0, mapWidth, mapHeight);
-        this.camera.startFollow(this.player, true);
+    setupTilemap()
+    {
+        const map = this.make.tilemap({ key: 'level1' });
 
-        this.playerPosText = this.add.text(10, 10, 'Pos: X:0, Y:0', { 
-            fontSize: '16px', 
-            color: '#ffffff',
-            backgroundColor: '#00000080',
-            padding: { x: 5, y: 5 }
-        });
+        const tilesetGrass = map.addTilesetImage('Grass_Middle', 'Grass_Middle.png');
+        const tilesetPath = map.addTilesetImage('Path_Middle', 'Path_Middle.png');
+        const tilesetWater = map.addTilesetImage('Water_Middle', 'Water_Middle.png');
+        const tilesetOak = map.addTilesetImage('Oak_Tree', 'Oak_Tree.png');
+        const tilesetHouse = map.addTilesetImage('House1', 'House1.png');
+        const tilesetCliff = map.addTilesetImage("Cliff_Tile", "Cliff_Tile.png");
+        const tilPath = map.addTilesetImage("Path_Tile", "Path_Tile.png");
+        const tilWater = map.addTilesetImage("Water_Tile", "Water_Tile.png");
+        const tilBeach = map.addTilesetImage("Beach_Tile", "Beach_Tile.png")
 
-        this.playerPosText.setScrollFactor(0); 
-        this.playerPosText.setDepth(999);
-        this.playerPosText.setVisible(false);
+        const tilesets = [tilesetGrass!, tilesetPath!, tilesetWater!, tilPath!, tilesetCliff!, tilWater!, tilBeach!];
 
-        this.physics.add.collider(this.player, layer!);
+        const tils2 = [tilesetOak!, tilesetHouse!];
+        this.layer = map.createLayer('Capa de patrones 1', tilesets, 0, 0)!;
+        this.layer2 = map.createLayer('Capa de patrones 2', tils2, 0,0)!;
 
+        this.layer.setCollisionByProperty({ collides: true });
+        this.layer2.setCollisionByProperty({collides: true});
+    }
+
+    setupNPCs() 
+    {
+        this.minerNpc = this.physics.add.staticSprite(280, 250, 'miner')
+            .setDepth(9)
+            .play('miner-idle')
+            .setInteractive()
+            .on('pointerdown', () => this.startDialogue('miner'))
+
+        this.citizenNpc = this.physics.add.staticSprite(1660, 270, 'citizen')
+            .setDepth(9) 
+            .play('citizen-idle')
+            .setInteractive()
+            .on('pointerdown', () => this.startDialogue('citizen'))
+    }
+
+    setupPlayer()
+    {
+        this.player = this.physics.add.sprite(100, 384, 'character'); 
+        this.player.setDepth(10);
+        
+        const newBodyHeight = 90; 
+        const originalHeight = this.player.height; 
+        
+        const offsetY = originalHeight - newBodyHeight; 
+        
+        this.player.body!.setSize(
+            this.player.width,
+            newBodyHeight,    
+            false             
+        ).setOffset(0, offsetY);
+
+        this.player.setCollideWorldBounds(true);
+        this.player.setPosition(100, 384);
+        this.player.setDrag(500, 500);
+        this.player.setMaxVelocity(this.playerSpeed);
+    }
+
+    createAnimations ()
+    {
         this.anims.create({
             key: 'miner-idle',
             frames: this.anims.generateFrameNumbers('miner', { start: 0, end: 5 }),
@@ -164,34 +199,6 @@ export class Game extends Scene
             repeat: -1
         });
 
-
-        this.minerNpc = this.physics.add.staticSprite(280, 250, 'miner')
-            .setDepth(9)
-            .play('miner-idle')
-            .setInteractive()
-            .on('pointerdown', () => this.startDialogue('miner'))
-
-        this.citizenNpc = this.physics.add.staticSprite(1660, 270, 'citizen')
-            .setDepth(9) 
-            .play('citizen-idle')
-            .setInteractive()
-            .on('pointerdown', () => this.startDialogue('citizen'))
-
-        this.physics.add.overlap(this.player, this.minerNpc, () => { 
-            if (!this.playerNearMiner) {
-                this.minerNpc.play('miner-interact', true);
-                this.playerNearMiner = true;
-            }
-        }, undefined, this);
-
-        this.physics.add.overlap(this.player, this.citizenNpc, () => {
-            if (!this.playerNearCitizen) {
-                this.citizenNpc.play('citizen-interact', true);
-                this.playerNearCitizen = true;
-            }
-        }, undefined, this);
-
-        
         this.anims.create({
             key: 'idle',
             frames: this.anims.generateFrameNumbers('character', { start: 0, end: 5 }),
@@ -219,9 +226,20 @@ export class Game extends Scene
             frameRate: 10, 
             repeat: -1 
         });
+    }
 
-        this.player.play("idle")
+    setupDebugText()
+    {
+        this.playerPosText = this.add.text(10, 10, 'Pos: X:0, Y:0', { 
+            fontSize: '16px', 
+            color: '#ffffff',
+            backgroundColor: '#00000080',
+            padding: { x: 5, y: 5 }
+        });
 
+        this.playerPosText.setScrollFactor(0); 
+        this.playerPosText.setDepth(999);
+        this.playerPosText.setVisible(false);
     }
 
     toggleDebug() {
