@@ -24,6 +24,10 @@ export class ControlsScene extends Scene
         const controlText = [
             'Movimiento: Flechas o W A S D',
             'Interacción: Clic en NPC',
+            'Minar: H',
+            'Cortar: J',
+            'Azada: K',
+            'Regar: L',
             'Acercar cámara: + o Q',
             'Alejar cámara: - o E',
             'Mostrar posición: P',
