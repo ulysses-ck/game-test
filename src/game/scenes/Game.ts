@@ -27,12 +27,20 @@ export class Game extends Scene
     zoomInKeyQ!: Phaser.Input.Keyboard.Key
     zoomOutKeyE!: Phaser.Input.Keyboard.Key
 
+    mine!: Phaser.Input.Keyboard.Key
+    chop!: Phaser.Input.Keyboard.Key
+    hoe!: Phaser.Input.Keyboard.Key
+    water!: Phaser.Input.Keyboard.Key
+
+
     layer: Phaser.Tilemaps.TilemapLayer
     layer2: Phaser.Tilemaps.TilemapLayer
     layer3: Phaser.Tilemaps.TilemapLayer
 
     playerNearMiner = false;
     playerNearCitizen = false;
+    playerDirection: string;
+    isPerformingAction: boolean;
 
     public static readonly POSITION_DECORATION = 40;
     public static readonly POSITION_NPCS = 40;
@@ -101,6 +109,11 @@ export class Game extends Scene
         this.zoomInKeyQ = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.Q);
         this.zoomOutKeyE = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.E);
 
+        this.mine = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.H)
+        this.chop = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.J)
+        this.hoe = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.K)
+        this.water = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.L)
+
         this.escapeKey = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.ESC)!;
 
         this.escapeKey.on('down', () => {
@@ -162,6 +175,8 @@ export class Game extends Scene
 
     setupPlayer()
     {
+        this.playerDirection = 'down';
+        this.isPerformingAction = false;
         this.player = this.physics.add.sprite(100, 384, 'character'); 
         this.player.setDepth(Game.POSITION_PLAYER);
         
@@ -184,6 +199,36 @@ export class Game extends Scene
 
     createAnimations ()
     {
+        const FRAMES_PER_ANIM = 2; 
+
+        const ANIMATION_ORDER = [
+            'mining_right',
+            'mining_down',
+            'mining_up',
+            'chopping_right',
+            'chopping_down',
+            'chopping_up',
+            'hoeing_right',
+            'hoeing_down',
+            'hoeing_up',
+            'watering_down',
+            'watering_up',
+            'watering_right',
+        ];
+
+        const FRAME_RATE = 8; 
+        ANIMATION_ORDER.forEach((animKey, rowIndex) => {
+            const startFrame = rowIndex * FRAMES_PER_ANIM;
+            const endFrame = startFrame + FRAMES_PER_ANIM - 1;
+
+            this.anims.create({
+                key: animKey,
+                frames: this.anims.generateFrameNumbers('char_actions', { start: startFrame, end: endFrame }),
+                frameRate: FRAME_RATE,
+                repeat: -1
+            });
+        });
+
         this.anims.create({
             key: 'miner-idle',
             frames: this.anims.generateFrameNumbers('miner', { start: 0, end: 5 }),
@@ -263,6 +308,7 @@ export class Game extends Scene
         this.handleCameraZoom()
         this.checkNPCInteractions()
         this.handlePlayerMovement()
+        this.handlePlayerActions()
         this.updateDebugText()
     }
 
@@ -277,8 +323,8 @@ export class Game extends Scene
     {
         const velocity = new Phaser.Math.Vector2(0, 0);
         let isMoving = false;
-        let animKey = 'idle';
-
+        let animKey = 'walk_down';
+        let direction = this.playerDirection;
 
         
         if (this.cursors.left.isDown || this.wasd.left.isDown)
@@ -287,6 +333,7 @@ export class Game extends Scene
             this.player.setFlipX(true);
             isMoving = true;
             animKey = 'walk_right';
+            direction = 'right';
         }
         if (this.cursors.right.isDown || this.wasd.right.isDown)
         {
@@ -294,6 +341,7 @@ export class Game extends Scene
             this.player.setFlipX(false);
             isMoving = true;
             animKey = 'walk_right';
+            direction = 'right';
         }
 
         if (this.cursors.up.isDown || this.wasd.up.isDown)
@@ -301,24 +349,62 @@ export class Game extends Scene
             velocity.y = -1;
             isMoving = true;
             animKey = 'walk_up';
+            direction = 'up';
         }
         if (this.cursors.down.isDown || this.wasd.down.isDown)
         {
             velocity.y = 1;
             isMoving = true;
             animKey = 'walk_down';
+            direction = 'down';
         }
         
         velocity.normalize(); 
 
         this.player.setVelocity(velocity.x * this.playerSpeed, velocity.y * this.playerSpeed);
+
+        this.playerDirection = direction
         
         if (isMoving) {
             this.player.play(animKey, true);
-        } else {
-            this.player.play('idle', true);
         }
     }
+
+    handlePlayerActions()
+    {
+        let actionKey = null;
+        let animKey = null;
+
+        // detectar tecla presionada
+        if (Phaser.Input.Keyboard.JustDown(this.mine)) actionKey = 'mine';
+        else if (Phaser.Input.Keyboard.JustDown(this.chop)) actionKey = 'chop';
+        else if (Phaser.Input.Keyboard.JustDown(this.hoe)) actionKey = 'hoe';
+        else if (Phaser.Input.Keyboard.JustDown(this.water)) actionKey = 'water';
+
+        if (!actionKey) return;
+
+        // animación según dirección actual
+        switch (actionKey) {
+            case 'mine':
+                animKey = `mining_${this.playerDirection}`;
+                break;
+            case 'chop':
+                animKey = `chopping_${this.playerDirection}`;
+                break;
+            case 'hoe':
+                animKey = `hoeing_${this.playerDirection}`;
+                break;
+            case 'water':
+                animKey = `watering_${this.playerDirection}`;
+                break;
+        }
+
+        if (animKey) {
+            this.player.setVelocity(0, 0); // detener movimiento
+            this.player.play(animKey, true);
+        }
+    }
+
 
     handleCameraZoom() {
         const camera = this.cameras.main;
