@@ -44,14 +44,19 @@ export class Preloader extends Scene
         this.load.image('Water_Tile.png', 'Water_Tile.png');
         this.load.image('Oak_Tree.png', 'Oak_Tree.png');
         this.load.image('House1.png', 'House1.png')
-        this.load.image('invisible.png', 'invisible.png')
+        this.load.image('invisible.png', 'invisible.png');
 
         this.load.image('logo', 'logo.png');
         this.load.spritesheet('character', 'Player.png', {
             frameWidth: 32,
             frameHeight: 32,
-        })
-
+        });
+        this.load.spritesheet('char_actions', 'Player_Actions.png',
+            {
+                frameHeight: 48,
+                frameWidth: 48,
+            }
+        );
 
         // environment
         this.load.atlasXML('medieval', 'medieval.png', 'medieval.xml');
