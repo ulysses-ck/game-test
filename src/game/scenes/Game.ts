@@ -29,9 +29,15 @@ export class Game extends Scene
 
     layer: Phaser.Tilemaps.TilemapLayer
     layer2: Phaser.Tilemaps.TilemapLayer
+    layer3: Phaser.Tilemaps.TilemapLayer
 
     playerNearMiner = false;
     playerNearCitizen = false;
+
+    public static readonly POSITION_DECORATION = 40;
+    public static readonly POSITION_NPCS = 40;
+    public static readonly POSITION_PLAYER = 30;
+    public static readonly POSITION_TEXT = 999;
 
     constructor ()
     {
@@ -42,7 +48,7 @@ export class Game extends Scene
     {
         const mapWidth = 2048;
         const mapHeight = 1504;
-
+        
         this.physics.world.setBounds(0, 0, mapWidth, mapHeight);
 
         this.camera = this.cameras.main;
@@ -56,8 +62,7 @@ export class Game extends Scene
         this.setupNPCs()
         this.setupInputs();
 
-        this.physics.add.collider(this.player, this.layer);
-        this.physics.add.collider(this.player, this.layer2);
+        this.physics.add.collider(this.player, this.layer3);
         this.physics.add.overlap(this.player, this.minerNpc, () => { 
             if (!this.playerNearMiner) {
                 this.minerNpc.play('miner-interact', true);
@@ -115,33 +120,41 @@ export class Game extends Scene
         const tilesetGrass = map.addTilesetImage('Grass_Middle', 'Grass_Middle.png');
         const tilesetPath = map.addTilesetImage('Path_Middle', 'Path_Middle.png');
         const tilesetWater = map.addTilesetImage('Water_Middle', 'Water_Middle.png');
-        const tilesetOak = map.addTilesetImage('Oak_Tree', 'Oak_Tree.png');
-        const tilesetHouse = map.addTilesetImage('House1', 'House1.png');
         const tilesetCliff = map.addTilesetImage("Cliff_Tile", "Cliff_Tile.png");
         const tilPath = map.addTilesetImage("Path_Tile", "Path_Tile.png");
         const tilWater = map.addTilesetImage("Water_Tile", "Water_Tile.png");
-        const tilBeach = map.addTilesetImage("Beach_Tile", "Beach_Tile.png")
+        const tilBeach = map.addTilesetImage("Beach_Tile", "Beach_Tile.png");
+
+        const tilesetOak = map.addTilesetImage('Oak_Tree', 'Oak_Tree.png');
+        const tilesetHouse = map.addTilesetImage('House1', 'House1.png');
+
+        const tilInvisible = map.addTilesetImage('invisible', 'invisible.png');
 
         const tilesets = [tilesetGrass!, tilesetPath!, tilesetWater!, tilPath!, tilesetCliff!, tilWater!, tilBeach!];
 
         const tils2 = [tilesetOak!, tilesetHouse!];
-        this.layer = map.createLayer('Capa de patrones 1', tilesets, 0, 0)!;
-        this.layer2 = map.createLayer('Capa de patrones 2', tils2, 0,0)!;
 
-        this.layer.setCollisionByProperty({ collides: true });
-        this.layer2.setCollisionByProperty({collides: true});
+        const tils3 = [tilInvisible!];
+
+        this.layer = map.createLayer('base', tilesets, 0, 0)!;
+        this.layer2 = map.createLayer('decoration', tils2, 0,0)!;
+        this.layer3 = map.createLayer('colliders', tils3, 0,0)!;
+
+        this.layer3.setCollisionByProperty({ collides: true });
+        this.layer3.setVisible(false);
+        this.layer2.setDepth(Game.POSITION_DECORATION)
     }
 
     setupNPCs() 
     {
         this.minerNpc = this.physics.add.staticSprite(280, 250, 'miner')
-            .setDepth(9)
+            .setDepth(Game.POSITION_NPCS)
             .play('miner-idle')
             .setInteractive()
             .on('pointerdown', () => this.startDialogue('miner'))
 
         this.citizenNpc = this.physics.add.staticSprite(1660, 270, 'citizen')
-            .setDepth(9) 
+            .setDepth(Game.POSITION_NPCS) 
             .play('citizen-idle')
             .setInteractive()
             .on('pointerdown', () => this.startDialogue('citizen'))
@@ -150,9 +163,9 @@ export class Game extends Scene
     setupPlayer()
     {
         this.player = this.physics.add.sprite(100, 384, 'character'); 
-        this.player.setDepth(10);
+        this.player.setDepth(Game.POSITION_PLAYER);
         
-        const newBodyHeight = 90; 
+        const newBodyHeight = 30; 
         const originalHeight = this.player.height; 
         
         const offsetY = originalHeight - newBodyHeight; 
@@ -238,7 +251,7 @@ export class Game extends Scene
         });
 
         this.playerPosText.setScrollFactor(0); 
-        this.playerPosText.setDepth(999);
+        this.playerPosText.setDepth(Game.POSITION_TEXT);
         this.playerPosText.setVisible(false);
     }
 
