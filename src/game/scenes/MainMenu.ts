@@ -25,7 +25,7 @@ export class MainMenu extends Scene
         }).setOrigin(0.5);
 
         this.promptText = this.add.text(512, 600, 'Presiona CUALQUIER tecla o haz clic para empezar', {
-            fontFamily: 'Arial', fontSize: 24, color: '#ffffff',
+            fontFamily: 'Arial', fontSize: 24, color: '#000000',
             align: 'center'
         }).setOrigin(0.5);
 
