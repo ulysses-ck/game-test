@@ -58,9 +58,6 @@ export class Preloader extends Scene
             }
         );
 
-        // environment
-        this.load.atlasXML('medieval', 'medieval.png', 'medieval.xml');
-
         // npcs
         this.load.spritesheet('miner', 'Skeleton.png', {
             frameWidth: 32,
