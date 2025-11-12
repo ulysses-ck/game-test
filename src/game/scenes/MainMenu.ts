@@ -5,6 +5,7 @@ export class MainMenu extends Scene
     background: GameObjects.Image;
     logo: GameObjects.Image;
     title: GameObjects.Text;
+    promptText: GameObjects.Text;
 
     constructor ()
     {
@@ -23,10 +24,25 @@ export class MainMenu extends Scene
             align: 'center'
         }).setOrigin(0.5);
 
-        this.input.once('pointerdown', () => {
+        this.promptText = this.add.text(512, 600, 'Presiona CUALQUIER tecla o haz clic para empezar', {
+            fontFamily: 'Arial', fontSize: 24, color: '#ffffff',
+            align: 'center'
+        }).setOrigin(0.5);
+
+        
+        const startGame = () => {
+            
+            this.input.keyboard!.off('keydown', startGame);
+            this.input.off('pointerdown', startGame);
 
             this.scene.start('Game');
+        };
 
-        });
+        
+        this.input.keyboard!.on('keydown', startGame);
+
+        
+        this.input.on('pointerdown', startGame);
+
     }
 }
