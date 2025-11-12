@@ -247,50 +247,25 @@ export class Game extends Scene
     }
 
     update() {
-        const camera = this.cameras.main;
-        const zoomSpeed = 0.1; 
-        const minZoom = 1;  
-        const maxZoom = 3;  
+        this.handleCameraZoom()
+        this.checkNPCInteractions()
+        this.handlePlayerMovement()
+        this.updateDebugText()
+    }
 
-        if (Phaser.Input.Keyboard.JustDown(this.zoomInKey) || Phaser.Input.Keyboard.JustDown(this.zoomInKeyQ)) {
-            let newZoom = camera.zoom + zoomSpeed;
-            
-            if (newZoom > maxZoom) {
-                newZoom = maxZoom;
-            }
-            camera.setZoom(newZoom);
-        } 
-        
-        if (Phaser.Input.Keyboard.JustDown(this.zoomOutKey) || Phaser.Input.Keyboard.JustDown(this.zoomOutKeyE)) {
-            let newZoom = camera.zoom - zoomSpeed;
-            
-            if (newZoom < minZoom) {
-                newZoom = minZoom;
-            }
-            camera.setZoom(newZoom);
-        }
+    updateDebugText()
+    {
+        this.playerPosText.setText(
+            `Pos: X:${Math.round(this.player.x)}, Y:${Math.round(this.player.y)}`
+        );
+    }
 
-        const isOverlappingMiner = this.physics.overlap(this.player, this.minerNpc);
-        
-        if (this.playerNearMiner && !isOverlappingMiner) {
-            this.minerNpc.play('miner-idle', true);
-            this.playerNearMiner = false;
-        }
-
-        const isOverlappingCitizen = this.physics.overlap(this.player, this.citizenNpc);
-        
-        if (this.playerNearCitizen && !isOverlappingCitizen) {
-            this.citizenNpc.play('citizen-idle', true);
-            this.playerNearCitizen = false;
-        }
-
+    handlePlayerMovement()
+    {
         const velocity = new Phaser.Math.Vector2(0, 0);
         let isMoving = false;
         let animKey = 'idle';
 
-        this.playerPosText.setText(
-            `Pos: X:${Math.round(this.player.x)}, Y:${Math.round(this.player.y)}`
-        );
 
         
         if (this.cursors.left.isDown || this.wasd.left.isDown)
@@ -332,6 +307,31 @@ export class Game extends Scene
         }
     }
 
+    handleCameraZoom() {
+        const camera = this.cameras.main;
+        const zoomSpeed = 0.1; 
+        const minZoom = 1;  
+        const maxZoom = 3;  
+
+        if (Phaser.Input.Keyboard.JustDown(this.zoomInKey) || Phaser.Input.Keyboard.JustDown(this.zoomInKeyQ)) {
+            let newZoom = camera.zoom + zoomSpeed;
+            
+            if (newZoom > maxZoom) {
+                newZoom = maxZoom;
+            }
+            camera.setZoom(newZoom);
+        } 
+        
+        if (Phaser.Input.Keyboard.JustDown(this.zoomOutKey) || Phaser.Input.Keyboard.JustDown(this.zoomOutKeyE)) {
+            let newZoom = camera.zoom - zoomSpeed;
+            
+            if (newZoom < minZoom) {
+                newZoom = minZoom;
+            }
+            camera.setZoom(newZoom);
+        }
+    }
+
     startDialogue (npcKey: string) {
         this.player.setVelocity(0); 
 
@@ -344,5 +344,21 @@ export class Game extends Scene
             npc: npcKey, 
             dialogueId: 'intro_01'
         });
+    }
+
+    checkNPCInteractions()
+    {
+        const isOverlappingMiner = this.physics.overlap(this.player, this.minerNpc);
+        if (this.playerNearMiner && !isOverlappingMiner) {
+            this.minerNpc.play('miner-idle', true);
+            this.playerNearMiner = false;
+        }
+
+        // Lógica para Citizen
+        const isOverlappingCitizen = this.physics.overlap(this.player, this.citizenNpc);
+        if (this.playerNearCitizen && !isOverlappingCitizen) {
+            this.citizenNpc.play('citizen-idle', true);
+            this.playerNearCitizen = false;
+        }
     }
 }
